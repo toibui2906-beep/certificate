@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Template {
+  id        String          @id @default(uuid())
+  name      String
+  bgImage   String          @db.Text // Dùng @db.Text để chứa chuỗi ảnh Base64 dài
+  width     Int             @default(800)
+  height    Int             @default(560)
+  createdAt DateTime        @default(now())
+  fields    TemplateField[]
+}
+
+model TemplateField {
+  id          String   @id @default(uuid())
+  templateId  String
+  template    Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  
+  type        String   @default("dynamic") // "dynamic" (cột Excel) hoặc "static" (chữ tĩnh)
+  excelColumn String?  // Có thể null nếu là chữ tĩnh
+  textContent String?  // Nội dung chữ tĩnh (có thể null nếu là cột Excel)
+  
+  posXPercent Float
+  posYPercent Float
+  fontSize    Int      @default(24)
+  color       String   @default("#000000")
+  fontFamily  String   @default("Times New Roman")
+  
+  // Các định dạng kiểu chữ mới
+  isBold      Boolean  @default(false)
+  isItalic    Boolean  @default(false)
+  isUnderline Boolean  @default(false)
+  
+  textAlign   String   @default("center")
+}
